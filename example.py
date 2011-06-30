@@ -7,11 +7,12 @@ from django.core.management.base import BaseCommand
 from django.core.cache import cache
 from django.conf import settings
 
-from server.regions import REGIONS
+from regions import REGIONS
 import pygeoip
 
 
-DB_TUPLE = pickle.load(open(settings.IPGEOBASE_DB, 'r')) # (x, y) x - диапозон ip, y - названия
+IPGEOBASE_DB = './geo_files/cidr_pickle.db'
+DB_TUPLE = pickle.load(open(IPGEOBASE_DB, 'r')) # (x, y) x - диапозон ip, y - названия
 SEEK_INFO = {}
 
 
@@ -68,21 +69,7 @@ class Command(BaseCommand):
             count = 0
             for entry in shown_ads:
                 country, region, city = get_geoip_info(entry[4], geo_db)
-                try:
-                    stat = Statistic.objects.create(
-                            date_add = entry[0],
-                            upload_id = entry[1],
-                            url = entry[2],
-                            user_uid = entry[3],
-                            ip_addr = entry[4],
-                            place_id = entry[5],
-                            
-                            geoip_country = country,
-                            geoip_region = region,
-                            geoip_city = city
-                        )
-                except:
-                    print 'error:', entry
+                print country, region, city
                 count += 1
             print "Was written %d raws." % count
 
